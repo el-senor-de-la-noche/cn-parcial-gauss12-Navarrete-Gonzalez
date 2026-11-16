@@ -31,7 +31,7 @@ Vector residuo final r (solución reportada):
 
 CONDICIONAMIENTO
   kappa_2(A)                 = 3.0847e+13
-  cota kappa*eps (eps=2.22e-16) = 6.850e-03
+  cota kappa*eps (eps=2.22e-16) = 6.849e-03
   dígitos que garantiza la cota = 2.16
 
 CONTROL CON BIBLIOTECA (numpy.linalg.solve, solo como control)

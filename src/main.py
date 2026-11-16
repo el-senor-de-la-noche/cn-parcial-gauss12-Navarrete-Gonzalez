@@ -13,6 +13,9 @@ import platform
 import sys
 from pathlib import Path
 
+# Agrega la raíz del proyecto al path de búsqueda de módulos.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import mpmath
 import numpy
 
