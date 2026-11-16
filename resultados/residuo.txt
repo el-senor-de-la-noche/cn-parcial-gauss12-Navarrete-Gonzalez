@@ -1,0 +1,38 @@
+RESIDUO r = b - A x (precisión extendida: aritmética racional exacta con fractions)
+
+Residuo de la corrida SIN pivoteo:  ||r||_inf = 1.77175e-7
+
+Refinamiento iterativo sobre la corrida con pivoteo parcial escalado
+(residuo exacto, corrección d = U^-1 L^-1 P r con L y U reutilizados):
+
+pasada      ||r||_inf   error relativo   dígitos correctos (mín.)
+     0    2.29088e-10        2.357e-13                         10
+     1    2.60319e-10        6.016e-17                         15
+     2    2.60319e-10        6.016e-17                         15
+     3    2.60319e-10        6.016e-17                         15
+
+Mejora del error relativo con el refinamiento: x3.92e+03 (la norma del residuo puede no bajar: queda limitada por el redondeo de x a doble precisión)
+
+Vector residuo final r (solución reportada):
+  r[ 1] = -3.4605794e-21
+  r[ 2] = 1.3423844e-12
+  r[ 3] = 2.3227641e-18
+  r[ 4] = -1.9279302e-12
+  r[ 5] = -1.8297739e-20
+  r[ 6] = -2.6031874e-10
+  r[ 7] = -9.8062871e-19
+  r[ 8] = 2.0704049e-12
+  r[ 9] = 9.4063676e-21
+  r[10] = -6.9438656e-13
+  r[11] = -5.6895856e-19
+  r[12] = -9.384789e-12
+
+||r||_inf (final) = 2.6031874e-10
+
+CONDICIONAMIENTO
+  kappa_2(A)                 = 3.0847e+13
+  cota kappa*eps (eps=2.22e-16) = 6.850e-03
+  dígitos que garantiza la cota = 2.16
+
+CONTROL CON BIBLIOTECA (numpy.linalg.solve, solo como control)
+  error relativo = 2.548e-13   dígitos correctos (mín.) = 10
