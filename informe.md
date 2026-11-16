@@ -2,6 +2,7 @@
 
 ## 1. Identificación
 
+| Campo | Detalle |
 | --- | --- |
 | Estudiantes | Elias Gonzalez Roman, Daniel Navarrete Silva |
 | Asignatura | Computación Numérica (INF-321), Ingeniería Civil Informática, UCM |
