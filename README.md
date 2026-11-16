@@ -7,7 +7,7 @@ Resuelve un sistema lineal denso de 12 incógnitas mediante eliminación gaussia
 - Elias Gonzalez Roman
 - Daniel Navarrete Silva
 - Asignatura: Computación Numérica (INF-321), Universidad Católica del Maule. Docentes: Juan Manuel Cabezas Contardo y Pedro Pesante.
-- Sección: 2
+- Sección: N° 2
 
 ## Requisitos
 
@@ -62,7 +62,7 @@ cn-parcial-gauss12-Navarrete-Gonzalez/
 
 ## Informe
 
-El análisis completo está en [informe.md](informe.md).
+El análisis completo se encuentra ubicado en [informe.md](informe.md).
 
 ## Licencia
 
