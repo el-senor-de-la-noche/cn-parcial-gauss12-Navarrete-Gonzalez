@@ -1,0 +1,1 @@
+# cn-parcial-gauss12-Navarrete-Gonzalez
