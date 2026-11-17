@@ -11,7 +11,7 @@ Resuelve un sistema lineal denso de 12 incógnitas mediante eliminación gaussia
 
 ## Requisitos
 
-- Python 3.10 o superior (probado con 3.12).
+- Python 3.10 o superior (probado con 3.13).
 - Instalar dependencias:
 
 ```
@@ -38,6 +38,7 @@ cn-parcial-gauss12-Navarrete-Gonzalez/
 ├─ informe.md    informe técnico y análisis de error
 ├─ readme.md     este archivo
 └─ requirements.txt
+└─ .gitignore
 ```
 
 ## Resultado resumido
@@ -57,8 +58,8 @@ cn-parcial-gauss12-Navarrete-Gonzalez/
 | x11 | 5.187362940e-02 |
 | x12 | -1.084937162e+00 |
 
-- El total de flops: **1486**.
-- La norma infinito del residuo : **2.6e-10**.
+- Total de flops: **1486**.
+- Norma infinito del residuo : **2.6e-10**.
 
 ## Informe
 
