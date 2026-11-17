@@ -4,16 +4,16 @@
 
 # ARCHIVO: EJECUCIÓN PRINCIPAL DEL PROYECTO
 # Coordina la lectura de datos, las dos versiones de Gauss, la verificación
-# numérica, el refinamiento de la solución y la escritura de los resultados.
+# numérica, el refinamiento de la solución y la escritura de los resultados
 # Para ejecutarlo desde la raíz del proyecto: python src/main.py
-# Los archivos generados se guardan en la carpeta resultados/.
+# Los archivos generados se guardan en la carpeta resultados/
 
 import math
 import platform
 import sys
 from pathlib import Path
 
-# Agrega la raíz del proyecto al path de búsqueda de módulos.
+# Agrega la raíz del proyecto al path de búsqueda de módulos
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import mpmath
@@ -25,16 +25,14 @@ from src.gauss import (a_float, ceros_bajo_diagonal, eliminar, leer_matriz_csv,
                    leer_vector_csv)
 import src.verificacion as ver
 
-# Define las rutas del proyecto a partir de la ubicación de este archivo,
-# de modo que la ejecución no dependa de la carpeta actual.
+# Define las rutas del proyecto a partir de la ubicación de este archivo de modo que la ejecución no dependa de la carpeta actual
 RAIZ = Path(__file__).resolve().parent.parent
 DATOS = RAIZ / "datos"
 SALIDA = RAIZ / "resultados"
 PASADAS_REFINAMIENTO = 3
 
 
-# Da formato científico a cada fila de la matriz aumentada [A | b],
-# alineando los valores para que los pasos se puedan revisar visualmente.
+# Da formato científico a cada fila de la matriz aumentada [A | b] alineando los valores para que los pasos se puedan revisar visualmente
 def formato_matriz(A, b):
     lineas = []
     for fila, bi in zip(A, b):
@@ -43,8 +41,7 @@ def formato_matriz(A, b):
     return "\n".join(lineas)
 
 
-# Escribe la matriz inicial y todos los estados de eliminación de cada
-# corrida, junto con las permutaciones y la cantidad de ceros obtenidos.
+# Escribe la matriz inicial y todos los estados de eliminación de cada corrida junto con las permutaciones y la cantidad de ceros obtenidos
 def escribir_traza(ruta, A0, b0, corridas):
     n = len(A0)
     out = []
@@ -54,9 +51,9 @@ def escribir_traza(ruta, A0, b0, corridas):
         out.append("=" * 78)
         out.append("Matriz aumentada [A | b] inicial:\n")
         out.append(formato_matriz(A0, b0))
-        # Recorre los estados guardados después de cada columna eliminada.
+        # Recorre los estados guardados después de cada columna eliminada
         for paso, A, b in res.trazas:
-            # Cuenta los ceros bajo la diagonal de las columnas ya procesadas.
+            # Cuenta los ceros bajo la diagonal de las columnas ya procesadas
             nulos = sum(1 for i in range(n) for j in range(min(i, paso))
                         if A[i][j] == 0.0)
             out.append("")
@@ -73,29 +70,28 @@ def escribir_traza(ruta, A0, b0, corridas):
     ruta.write_text("\n".join(out), encoding="utf-8")
 
 
-# Punto de entrada: este bloque se ejecuta solo al iniciar el archivo
-# directamente. Organiza las etapas del proyecto y guarda los resultados.
+# Punto de entrada: este bloque se ejecuta solo al iniciar el archivo directamente
+# Organiza las etapas del proyecto y guarda los resultados
 if __name__ == "__main__":
     SALIDA.mkdir(exist_ok=True)
 
-    # LECTURA DE DATOS: conserva textos exactos y crea copias float para Gauss.
+    # LECTURA DE DATOS: conserva textos exactos y crea copias float para Gauss
     A_str = leer_matriz_csv(DATOS / "matriz_a.csv")
     b_str = leer_vector_csv(DATOS / "vector_b.csv")
     A, b = a_float(A_str), a_float(b_str)
-    # El trabajo está configurado para un sistema cuadrado de 12 ecuaciones.
+    # El trabajo está configurado para un sistema cuadrado de 12 ecuaciones
     n = len(A)
     assert n == 12 and all(len(f) == n for f in A) and len(b) == n
 
-    # REFERENCIA EXACTA: permite evaluar error y dígitos de las soluciones.
+    # REFERENCIA EXACTA: permite evaluar error y dígitos de las soluciones
     x_exacto = ver.solucion_exacta(A_str, b_str)
 
-    # T1 / T2: ejecuta Gauss con y sin pivoteo para comparar ambos métodos.
+    # T1 / T2: ejecuta Gauss con y sin pivoteo para comparar ambos métodos
     c_sin, c_con = Contador(n), Contador(n)
     r_sin = eliminar(A, b, "ninguno", c_sin)
     r_con = eliminar(A, b, "parcial_escalado", c_con)
 
-    # Evalúa el error relativo y los dígitos correctos de cada corrida
-    # para comprobar el efecto numérico del pivoteo.
+    # Evalúa el error relativo y los dígitos correctos de cada corrida para comprobar el efecto numérico del pivoteo
     err_sin = ver.error_relativo_inf(r_sin.x, x_exacto)
     err_con = ver.error_relativo_inf(r_con.x, x_exacto)
     dig_sin = min(ver.digitos_correctos(v, e) for v, e in zip(r_sin.x, x_exacto))
@@ -104,13 +100,12 @@ if __name__ == "__main__":
     # T4: refina tres veces la solución obtenida con pivoteo.
     historia = ver.refinar(r_con, A_str, b_str, r_con.x, x_exacto,
                            PASADAS_REFINAMIENTO)
-    # La última entrada del historial contiene la solución refinada.
+    # La última entrada del historial contiene la solución refinada
     x_final = historia[-1]["x"]
 
-    # T3: exporta la solución sin afirmar más precisión de la medida.
+    # T3: exporta la solución sin afirmar más precisión de la medida
     filas_sol = []
-    # Para cada incógnita se calcula cuántos dígitos se pueden afirmar,
-    # y se conserva solo esa precisión al escribir solucion.csv.
+    # Para cada incógnita se calcula cuántos dígitos se pueden afirmar y se conserva solo esa precisión al escribir solucion.csv
     for i, (xi, xe) in enumerate(zip(x_final, x_exacto), start=1):
         d = ver.digitos_correctos(xi, xe)
         filas_sol.append((i, xi, d))
@@ -119,13 +114,12 @@ if __name__ == "__main__":
         for i, xi, d in filas_sol:
             f.write(f"{i},{xi:.{max(d, 1) - 1}e},{d}\n")
 
-    # TRAZAS Y CONTEO: registra los pasos y las operaciones utilizadas.
+    # TRAZAS Y CONTEO: registra los pasos y las operaciones utilizadas
     escribir_traza(SALIDA / "traza_eliminacion.txt", A, b,
                    [("pivoteo parcial escalado (corrida principal)", r_con),
                     ("sin pivoteo", r_sin)])
 
-    # Se prepara el informe de operaciones y se le agregan indicadores
-    # para comparar el comportamiento de ambos métodos.
+    # Se prepara el informe de operaciones y se le agregan indicadores para comparar el comportamiento de ambos métodos
     md = reporte_markdown(c_sin, c_con)
     md += "\n## Indicadores de estabilidad (T2)\n\n"
     md += ("| Indicador | Sin pivoteo | Pivoteo parcial escalado |\n"
@@ -147,13 +141,12 @@ if __name__ == "__main__":
            f"{dig_sin} | {dig_con} |\n")
     (SALIDA / "conteo_flops.md").write_text(md, encoding="utf-8")
 
-    # VERIFICACIÓN: analiza residuos, condicionamiento y referencia NumPy.
+    # VERIFICACIÓN: analiza residuos, condicionamiento y referencia NumPy
     cond = ver.condicionamiento(A)
     ctrl = ver.control_numpy(A, b, x_exacto)
     r0 = ver.residuo_exacto(A_str, b_str, r_sin.x)
 
-    # Se prepara un informe de residuos, historial de refinamiento,
-    # condicionamiento y comparación contra NumPy.
+    # Se prepara un informe de residuos, historial de refinamiento condicionamiento y comparación contra NumPy
     L = []
     L.append("RESIDUO r = b - A x (precisión extendida: aritmética racional "
              "exacta con fractions)\n")
@@ -169,14 +162,13 @@ if __name__ == "__main__":
     for h in historia:
         L.append(f"{h['pasada']:>6} {ver.formatear(h['norma_r'], 6):>14} "
                  f"{h['error_rel']:>16.3e} {h['min_digitos']:>26}")
-    # Calcula el factor de mejora entre el error inicial y el final;
-    # el mínimo del denominador evita una división entre cero.
+    # Calcula el factor de mejora entre el error inicial y el final; el mínimo del denominador evita una división entre cero
     mejora = historia[0]["error_rel"] / max(historia[-1]["error_rel"], 1e-300)
     L.append(f"\nMejora del error relativo con el refinamiento: "
              f"x{mejora:.3g} (la norma del residuo puede no bajar: queda "
              f"limitada por el redondeo de x a doble precisión)")
     L.append("")
-    # Recalcula el residuo de la solución final usando los datos exactos.
+    # Recalcula el residuo de la solución final usando los datos exactos
     r_fin = ver.residuo_exacto(A_str, b_str, x_final)
     L.append("Vector residuo final r (solución reportada):")
     for i, ri in enumerate(r_fin, start=1):
@@ -193,7 +185,7 @@ if __name__ == "__main__":
              f"dígitos correctos (mín.) = {ctrl['min_digitos']}")
     (SALIDA / "residuo.txt").write_text("\n".join(L) + "\n", encoding="utf-8")
 
-    # RESUMEN: muestra los indicadores principales al terminar.
+    # RESUMEN: muestra los indicadores principales al terminar
     ref = cota_referencia(n)
     print(f"Python {platform.python_version()} | numpy {numpy.__version__} | "
           f"mpmath {mpmath.__version__}")
