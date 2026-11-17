@@ -194,6 +194,10 @@ Este comando ejecuta el programa principal y genera los archivos con los resulta
 `resultados/solucion.csv`, `traza_eliminacion.txt`, `conteo_flops.md` y `residuo.txt`.
 De esta manera, es posible reproducir el procedimiento, revisar los resultados y comprobar el comportamiento de las dos estrategias de pivoteo implementadas.
 
+## Declaración de uso de inteligencia artificial
+
+Se utilizaron asistentes de inteligencia artificial, específicamente Claude (Anthropic), como apoyo durante el desarrollo del proyecto. Su uso incluyó la mejora de la redacción de los comentarios del código, la corrección de un error de importación en main.py y la revisión de la ortografía del  informe.md y el README.md. Los resultados y las modificaciones sugeridas fueron revisados mediante la ejecución del código y la comprobación de los cálculos correspondientes. 
+
 ## Fuentes
 
 - Enunciado de la Prueba Parcial 3, «El pivote», asignatura Computación Numérica (INF-321), Universidad Católica del Maule, noviembre de 2026.
