@@ -102,6 +102,7 @@ En la primera ejecución se utiliza directamente el elemento  a(1,1) = 1.3407e-0
 
 
 ## 6. Condicionamiento
+
 El condicionamiento nos permite estudiar qué tan sensible es la solución de un sistema de ecuaciones lineales frente a pequeñas perturbaciones en sus datos, en este problema se estimó el número de condición en norma 2 mediante el cociente entre el mayor y el menor valor singular de la matriz.
 
 - κ₂(A) ≈ 3.085e13 (estimado como cociente entre el mayor y el menor valor singular, σ_max ≈ 2.26e6 y σ_min ≈ 7.3e-8).
@@ -120,8 +121,85 @@ Adicionalmente, se identificó que la fila 7 presenta una dependencia aproximada
 
 ## 7. Resultados
 
+Después de comparar ambas ejecuciones, se seleccionó la solución obtenida mediante pivoteo parcial escalado, ya que presentó un comportamiento numérico más favorable, luego de esto se aplicó refinamiento iterativo para mejorar la precisión de las incógnitas. Los valores finales obtenidos fueron los siguientes:
+
+| Incógnita | Valor | Dígitos correctos afirmados |
+| --- | ---: | ---: |
+| x1 | 7.38491562700000e-01 | 15 |
+| x2 | -1.20593741680000e+00 | 15 |
+| x3 | 4.38719520000000e-03 | 15 |
+| x4 | -9.17264538000000e-02 | 15 |
+| x5 | 2.84610937250000e+00 | 15 |
+| x6 | -6.28154090000000e-03 | 15 |
+| x7 | 1.47382059160000e+00 | 15 |
+| x8 | -3.84927164000000e-02 | 15 |
+| x9 | 9.15264803700000e-01 | 15 |
+| x10 | -2.60713948520000e+00 | 15 |
+| x11 | 5.18736294000000e-02 | 15 |
+| x12 | -1.08493716250000e+00 | 15 |
+
+Los 15 dígitos correctos se respaldan mediante la comparación con la solución de referencia obtenida utilizando aritmética racional, el error relativo final, medido en norma infinito, fue de aproximadamente 6.0e-17,es importante destacar que estos resultados corresponden a la ejecución con pivoteo parcial escalado después de aplicar refinamiento iterativo, sin este procedimiento adicional, la solución alcanza un mínimo de 10 dígitos correctos.
+
+
 ## 8. Verificación
+
+Para comprobar la precisión de las soluciones obtenidas se calculó el residuo del sistema: r = b - A x, la verificación se realizó utilizando los datos originales almacenados como texto y operaciones racionales mediante `fractions`, evitando que la comprobación dependa exclusivamente de la misma aritmética de doble precisión utilizada durante la resolución.
+
+**Comparación del residuo**
+Los resultados obtenidos para las diferentes ejecuciones fueron los siguientes:
+
+| Ejecución | Norma infinito del residuo |
+| --- | ---: |
+| Sin pivoteo | 1.77e-07 |
+| Con pivoteo, pasada 0 | 2.29e-10 |
+| Con pivoteo, tras refinamiento | 2.60e-10 |
+
+Se observa que la ejecución con pivoteo presenta inicialmente un residuo considerablemente menor que la ejecución sin pivoteo, sin embargo, después de aplicar refinamiento iterativo, el residuo aumenta ligeramente, lo cual no significa necesariamente que la solución haya empeorado, ya que el residuo y el error de la solución representan medidas diferentes.
+
+**Refinamiento iterativo** 
+El refinamiento iterativo permite mejorar una solución aproximada mediante la resolución de un sistema de corrección, d = U⁻¹L⁻¹P r, reutilizando L y U; 288 flops por pasada.
+
+| Pasada | Norma infinito del residuo | Error relativo | Dígitos correctos (mínimo) |
+| --- | ---: | ---: | ---: |
+| 0 | 2.29e-10 | 2.357e-13 | 10 |
+| 1 | 2.60e-10 | 6.016e-17 | 15 |
+| 2 | 2.60e-10 | 6.016e-17 | 15 |
+| 3 | 2.60e-10 | 6.016e-17 | 15 |
+
+Al comparar la primera y segunda fila de resultados, se observa que el error relativo disminuye aproximadamente 3900 veces después de la primera pasada de refinamiento, sin embargo, a partir de ese momento la precisión se mantiene prácticamente constante, el aumento del residuo después de la primera pasada se explica porque la solución se almacena en doble precisión, aunque la corrección permite obtener una aproximación más cercana a la solución exacta, los valores de (x) continúan estando limitados por la precisión de su representación, por esta razón, el residuo puede permanecer estable o incluso aumentar ligeramente debido al redondeo.
+
+**Comparación con una biblioteca numérica**
+Como comprobación adicional, se utilizó la función`numpy.linalg.solve` para resolver el mismo sistema mediante una rutina de biblioteca, el resultado obtenido presentó un error relativo de: 2.548e-13, esto equivale aproximadamente a 10 dígitos correctos, un resultado similar al obtenido mediante nuestra implementación propia con pivoteo parcial escalado, antes de aplicar el refinamiento iterativo.
+
 
 ## 9. Conclusiones
 
+A partir del desarrollo del laboratorio y del análisis de los resultados obtenidos, se puede concluir que la selección del pivote tiene una influencia importante en la estabilidad numérica del método de eliminación gaussiana.
+En primer lugar, la ejecución sin pivoteo presentó dificultades debido a la utilización de un pivote inicial demasiado pequeño. Esto provocó la aparición de multiplicadores elevados y un mayor crecimiento de los elementos durante la eliminación, obteniéndose finalmente un mínimo de 7 dígitos correctos.
+
+- **Compromiso elegido:** se mantuvo el costo en el mínimo (1486 flops, 0 % sobre la cota) y se pagó la estabilidad aparte: 275 operaciones de pivoteo (≈ 18 % del costo base) que llevan de 7 a 10 dígitos correctos. El refinamiento agrega 288 flops por pasada y llega a 15 dígitos; es barato porque reutiliza L y U.
+- **Lección:** el costo de estabilidad es pequeño frente al daño de no pivotear; y la cota κ·ε no es un buen predictor aquí, porque ignora la estructura (escalas de fila).
+- **Con n = 1000:** el costo base sería ≈ 2n³/3 ≈ 6.7e8 flops, y la búsqueda del pivote (O(n²)) sería despreciable frente a él, por lo que el pivoteo seguiría siendo conveniente. Se usaría una factorización LU por bloques con librerías optimizadas, equilibrado previo de filas y estimación de κ con un estimador barato (tipo Hager/Higham) en vez de calcular los valores singulares completos.
+
+
 ## 10. Reproducibilidad
+
+Para facilitar la revisión y ejecución del trabajo, se registran las herramientas, versiones y procedimientos utilizados durante el desarrollo del laboratorio.
+**Entorno de ejecución:**
+- Python 3.12.3.
+- NumPy 2.5.4.
+- mpmath 1.3.0.
+Las versiones utilizadas durante la ejecución se registran por separado de las dependencias fijadas en el archivo `requirements.txt`, donde se especifican NumPy 2.2.6 y mpmath 1.3.0.
+
+**Comando de ejecución:**
+Desde el directorio raíz del repositorio se debe ejecutar:
+`python src/main.py`
+Este comando ejecuta el programa principal y genera los archivos con los resultados del procedimiento:
+`resultados/solucion.csv`, `traza_eliminacion.txt`, `conteo_flops.md` y `residuo.txt`.
+De esta manera, es posible reproducir el procedimiento, revisar los resultados y comprobar el comportamiento de las dos estrategias de pivoteo implementadas.
+
+## Fuentes
+
+- Enunciado de la Prueba Parcial 3, «El pivote», asignatura Computación Numérica (INF-321), Universidad Católica del Maule, noviembre de 2026.
+- Material de clases de la asignatura Computación Numérica, correspondiente a los contenidos de eliminación gaussiana, factorización, estrategias de pivoteo y condicionamiento de sistemas lineales.
+
